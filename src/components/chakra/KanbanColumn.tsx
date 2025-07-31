@@ -112,16 +112,19 @@ export function KanbanColumn({
       id: column.id, 
       column: column 
     },
-    begin: () => {
-      onDragStart(column.id);
-    },
-    end: () => {
-      onDragEnd();
-    },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
   }), [column.id]);
+
+  // Handle drag start/end events using useEffect
+  useEffect(() => {
+    if (isDragging) {
+      onDragStart(column.id);
+    } else {
+      onDragEnd();
+    }
+  }, [isDragging, column.id, onDragStart, onDragEnd]);
 
   const [{ isOverColumn }, dropColumn] = useDrop({
     accept: 'COLUMN',
