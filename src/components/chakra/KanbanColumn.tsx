@@ -180,15 +180,19 @@ export function KanbanColumn({
       style.borderWidth = '2px';
     }
     
-    // Column reordering visual feedback
+    // Column reordering visual feedback - push aside effect
     if (isOverColumn) {
-      style.transform = 'scale(1.02)';
+      style.transform = 'translateX(20px)';
+      style.marginRight = '20px';
       style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)';
+      style.transition = 'all 0.2s ease-out';
     }
     
     if (isDragging) {
-      style.opacity = 0.5;
-      style.transform = 'rotate(5deg)';
+      style.opacity = 0.8;
+      style.transform = 'scale(1.05)';
+      style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.3)';
+      style.zIndex = 1000;
     }
     
     return style;
