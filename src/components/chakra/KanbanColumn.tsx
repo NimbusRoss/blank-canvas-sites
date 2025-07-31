@@ -159,49 +159,16 @@ export function KanbanColumn({
     onUpdateColumn({ ...column, sites: updatedSites, count: updatedSites.length });
   };
 
-  // Determine drop zone styling for sites
-  const getDropZoneStyle = () => {
-    let style: any = {};
-    
-    if (isOver && canDrop) {
-      style.backgroundColor = 'blue.50';
-      style.borderColor = 'blue.500';
-      style.borderWidth = '2px';
-      style.borderStyle = 'dashed';
-    } else if (canDrop) {
-      style.borderColor = 'gray.300';
-      style.borderWidth = '2px';
-      style.borderStyle = 'dashed';
-    }
-    
-    if (isHighlighted) {
-      style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.3)';
-      style.borderColor = 'blue.500';
-      style.borderWidth = '2px';
-    }
-    
-    // Column reordering visual feedback - push aside effect
-    if (isOverColumn) {
-      style.transform = 'translateX(20px)';
-      style.marginRight = '20px';
-      style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)';
-      style.transition = 'all 0.2s ease-out';
-    }
-    
-    if (isDragging) {
-      style.opacity = 0.8;
-      style.transform = 'scale(1.05)';
-      style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.3)';
-      style.zIndex = 1000;
-    }
-    
-    return style;
-  };
 
-  // Combine drop refs
+  // Combine drop refs for the main container
   const combinedRef = (el: HTMLDivElement | null) => {
     drop(el);
     dropColumn(el);
+  };
+
+  // Separate ref for dragging (header only)
+  const dragRef = (el: HTMLDivElement | null) => {
+    dragColumn(el);
   };
 
   return (
@@ -213,14 +180,28 @@ export function KanbanColumn({
       bg={column.color}
       shadow="md"
       overflow="hidden"
-      transition="all 0.2s"
       h={collapsed ? "64px" : "auto"}
       borderRadius="16px"
-      sx={getDropZoneStyle()}
+      transition="all 0.2s ease-out"
+      transform={isDragging ? "scale(1.05)" : isOverColumn ? "translateX(20px)" : "none"}
+      marginRight={isOverColumn ? "20px" : "0"}
+      opacity={isDragging ? 0.8 : 1}
+      boxShadow={isDragging ? "0 10px 30px rgba(0, 0, 0, 0.3)" : isOverColumn ? "0 0 0 2px rgba(59, 130, 246, 0.5)" : "md"}
+      zIndex={isDragging ? 1000 : "auto"}
+      sx={isOver && canDrop ? {
+        backgroundColor: 'blue.50',
+        borderColor: 'blue.500',
+        borderWidth: '2px',
+        borderStyle: 'dashed'
+      } : isHighlighted ? {
+        boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.3)',
+        borderColor: 'blue.500',
+        borderWidth: '2px'
+      } : {}}
     >
       {/* Column Header - Draggable */}
       <Box 
-        ref={dragColumn}
+        ref={dragRef}
         h="64px" 
         borderBottom="1px solid" 
         borderColor="gray.200" 
@@ -232,6 +213,7 @@ export function KanbanColumn({
         cursor={isDragging ? 'grabbing' : 'grab'}
         transition="all 0.2s"
         _hover={{ bg: 'gray.50' }}
+        userSelect="none"
       >
         <Flex justify="space-between" align="center" w="full">
           <Flex align="center" gap={2} flex={1} minW={0}>
