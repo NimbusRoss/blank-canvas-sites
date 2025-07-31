@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { MoreVertical, ChevronDown, ChevronUp } from 'lucide-react';
-import { useDrop } from 'react-dnd';
+import { MoreVertical, ChevronDown, ChevronUp, GripVertical } from 'lucide-react';
+import { useDrop, useDrag } from 'react-dnd';
 import { Box, Flex, Button, Text, Badge } from '@chakra-ui/react';
 import { PropertyCard } from './PropertyCard';
 
@@ -35,6 +35,7 @@ interface KanbanColumnProps {
   onUpdateColumn: (column: Column) => void;
   onSiteSelect: (site: Site) => void;
   onMoveSite: (siteId: string, fromColumnId: string, toColumnId: string) => void;
+  onMoveColumn: (draggedColumnId: string, targetColumnId: string) => void;
   highlightedSites?: Set<string>;
   onSiteCheckboxChange: (columnId: string, siteId: string, isChecked: boolean) => void;
 }
@@ -46,6 +47,12 @@ interface DragItem {
   site: Site;
 }
 
+interface ColumnDragItem {
+  type: string;
+  id: string;
+  column: Column;
+}
+
 export function KanbanColumn({ 
   column, 
   isCollapsed, 
@@ -54,6 +61,7 @@ export function KanbanColumn({
   onUpdateColumn, 
   onSiteSelect, 
   onMoveSite,
+  onMoveColumn,
   highlightedSites = new Set(),
   onSiteCheckboxChange
 }: KanbanColumnProps) {
@@ -69,6 +77,7 @@ export function KanbanColumn({
   // Column is collapsed if either globally collapsed or locally collapsed (but global takes precedence)
   const collapsed = isCollapsed || localCollapsed;
 
+  // Drag and drop for sites within columns
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: 'SITE_CARD',
     drop: (item: DragItem, monitor) => {
@@ -84,6 +93,35 @@ export function KanbanColumn({
     collect: (monitor) => ({
       isOver: monitor.isOver({ shallow: true }),
       canDrop: monitor.canDrop(),
+    }),
+  });
+
+  // Drag and drop for column reordering
+  const [{ isDragging }, dragColumn] = useDrag({
+    type: 'COLUMN',
+    item: () => ({ 
+      type: 'COLUMN', 
+      id: column.id, 
+      column: column 
+    }),
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  const [{ isOverColumn }, dropColumn] = useDrop({
+    accept: 'COLUMN',
+    drop: (item: ColumnDragItem, monitor) => {
+      if (monitor.didDrop()) {
+        return; // If already handled by a nested target
+      }
+      if (item.id !== column.id) {
+        console.log('Moving column:', item.id, 'to position of:', column.id);
+        onMoveColumn(item.id, column.id);
+      }
+    },
+    collect: (monitor) => ({
+      isOverColumn: monitor.isOver({ shallow: true }),
     }),
   });
 
@@ -121,7 +159,7 @@ export function KanbanColumn({
     onUpdateColumn({ ...column, sites: updatedSites, count: updatedSites.length });
   };
 
-  // Determine drop zone styling
+  // Determine drop zone styling for sites
   const getDropZoneStyle = () => {
     let style: any = {};
     
@@ -142,12 +180,29 @@ export function KanbanColumn({
       style.borderWidth = '2px';
     }
     
+    // Column reordering visual feedback
+    if (isOverColumn) {
+      style.transform = 'scale(1.02)';
+      style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)';
+    }
+    
+    if (isDragging) {
+      style.opacity = 0.5;
+      style.transform = 'rotate(5deg)';
+    }
+    
     return style;
+  };
+
+  // Combine drop refs
+  const combinedRef = (el: HTMLDivElement | null) => {
+    drop(el);
+    dropColumn(el);
   };
 
   return (
     <Box 
-      ref={drop}
+      ref={combinedRef}
       data-column-id={column.id}
       flexShrink={0}
       w="384px"
@@ -159,10 +214,27 @@ export function KanbanColumn({
       borderRadius="16px"
       sx={getDropZoneStyle()}
     >
-      {/* Column Header */}
-      <Box h="64px" borderBottom="1px solid" borderColor="gray.200" bg="white" display="flex" alignItems="center" p={4} borderTopRadius="16px">
+      {/* Column Header - Draggable */}
+      <Box 
+        ref={dragColumn}
+        h="64px" 
+        borderBottom="1px solid" 
+        borderColor="gray.200" 
+        bg="white" 
+        display="flex" 
+        alignItems="center" 
+        p={4} 
+        borderTopRadius="16px"
+        cursor={isDragging ? 'grabbing' : 'grab'}
+        transition="all 0.2s"
+        _hover={{ bg: 'gray.50' }}
+      >
         <Flex justify="space-between" align="center" w="full">
-          <Flex align="center" gap={3} flex={1} minW={0}>
+          <Flex align="center" gap={2} flex={1} minW={0}>
+            {/* Drag Handle Icon */}
+            <Box color="gray.400" _hover={{ color: 'gray.600' }} transition="colors 0.2s">
+              <GripVertical size={16} />
+            </Box>
             {/* Stage Name with max width */}
             <Text 
               color="gray.700"

@@ -344,6 +344,37 @@ export default function PropertySitesKanban() {
     });
   };
 
+  const handleMoveColumn = (draggedColumnId: string, targetColumnId: string) => {
+    console.log(`Moving column ${draggedColumnId} to position of ${targetColumnId}`);
+    
+    if (draggedColumnId === targetColumnId) {
+      console.log('Same column, no move needed');
+      return;
+    }
+
+    setColumns(prevColumns => {
+      const newColumns = [...prevColumns];
+      
+      // Find the columns
+      const draggedColumnIndex = newColumns.findIndex(col => col.id === draggedColumnId);
+      const targetColumnIndex = newColumns.findIndex(col => col.id === targetColumnId);
+      
+      if (draggedColumnIndex === -1 || targetColumnIndex === -1) {
+        console.log('Column not found');
+        return prevColumns;
+      }
+      
+      // Remove the dragged column from its current position
+      const [draggedColumn] = newColumns.splice(draggedColumnIndex, 1);
+      
+      // Insert it at the target position
+      newColumns.splice(targetColumnIndex, 0, draggedColumn);
+      
+      console.log('Column reordering completed successfully');
+      return newColumns;
+    });
+  };
+
   const handleSiteCheckboxChange = (columnId: string, siteId: string, isChecked: boolean) => {
     setColumns(prevColumns => {
       return prevColumns.map(column => {
@@ -484,6 +515,7 @@ export default function PropertySitesKanban() {
                     col.id === updatedColumn.id ? updatedColumn : col
                   ));
                 }}
+                onMoveColumn={handleMoveColumn}
                 onSiteSelect={handleSiteSelect}
                 onMoveSite={handleMoveSite}
                 highlightedSites={highlightedResults}
