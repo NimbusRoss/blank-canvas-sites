@@ -147,6 +147,7 @@ export default function PropertySitesKanban() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [highlightedResults, setHighlightedResults] = useState<Set<string>>(new Set());
   const [allSelected, setAllSelected] = useState(false);
+  const [draggedColumnId, setDraggedColumnId] = useState<string | null>(null);
   
   // Ref for the columns container to enable scrolling to new stages
   const columnsContainerRef = useRef<HTMLDivElement>(null);
@@ -503,13 +504,17 @@ export default function PropertySitesKanban() {
               },
             }}
           >
-            {filteredColumns.map((column) => (
+            {filteredColumns.map((column, index) => (
               <KanbanColumn
                 key={column.id}
                 column={column}
+                columnIndex={index}
                 isCollapsed={allCollapsed}
                 isHighlighted={highlightedResults.has(`stage-${column.id}`)}
                 searchTerm={searchTerm}
+                draggedColumnId={draggedColumnId}
+                onDragStart={setDraggedColumnId}
+                onDragEnd={() => setDraggedColumnId(null)}
                 onUpdateColumn={(updatedColumn) => {
                   setColumns(columns.map(col => 
                     col.id === updatedColumn.id ? updatedColumn : col

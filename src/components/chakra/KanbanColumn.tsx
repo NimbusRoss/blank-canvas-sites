@@ -29,9 +29,13 @@ interface Column {
 
 interface KanbanColumnProps {
   column: Column;
+  columnIndex: number;
   isCollapsed: boolean;
   isHighlighted?: boolean;
   searchTerm?: string;
+  draggedColumnId: string | null;
+  onDragStart: (columnId: string) => void;
+  onDragEnd: () => void;
   onUpdateColumn: (column: Column) => void;
   onSiteSelect: (site: Site) => void;
   onMoveSite: (siteId: string, fromColumnId: string, toColumnId: string) => void;
@@ -55,9 +59,13 @@ interface ColumnDragItem {
 
 export function KanbanColumn({ 
   column, 
+  columnIndex,
   isCollapsed, 
   isHighlighted = false,
   searchTerm = '',
+  draggedColumnId,
+  onDragStart,
+  onDragEnd,
   onUpdateColumn, 
   onSiteSelect, 
   onMoveSite,
@@ -97,20 +105,23 @@ export function KanbanColumn({
   });
 
   // Drag and drop for column reordering
-  const [{ isDragging }, dragColumn] = useDrag({
+  const [{ isDragging }, dragColumn] = useDrag(() => ({
     type: 'COLUMN',
-    item: () => ({ 
+    item: { 
       type: 'COLUMN', 
       id: column.id, 
       column: column 
-    }),
-    options: {
-      dropEffect: 'move',
+    },
+    begin: () => {
+      onDragStart(column.id);
+    },
+    end: () => {
+      onDragEnd();
     },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
-  });
+  }), [column.id]);
 
   const [{ isOverColumn }, dropColumn] = useDrop({
     accept: 'COLUMN',
@@ -127,6 +138,11 @@ export function KanbanColumn({
       isOverColumn: monitor.isOver({ shallow: true }),
     }),
   });
+
+  // Determine if this column should shift to fill the placeholder space
+  const shouldShift = draggedColumnId && 
+    draggedColumnId !== column.id && 
+    isOverColumn;
 
   const handleToggleCollapse = () => {
     // Only allow local toggle if not globally collapsed
@@ -210,8 +226,8 @@ export function KanbanColumn({
       h={collapsed ? "64px" : "auto"}
       borderRadius="16px"
       transition="all 0.2s ease-out"
-      transform={isOverColumn ? "translateX(20px)" : "none"}
-      marginRight={isOverColumn ? "20px" : "0"}
+      transform={shouldShift ? "translateX(384px)" : isOverColumn ? "translateX(20px)" : "none"}
+      marginRight={shouldShift ? "384px" : isOverColumn ? "20px" : "0"}
       boxShadow={isOverColumn ? "0 0 0 2px rgba(59, 130, 246, 0.5)" : "md"}
       sx={isOver && canDrop ? {
         backgroundColor: 'blue.50',
