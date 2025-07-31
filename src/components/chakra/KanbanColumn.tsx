@@ -193,11 +193,14 @@ export function KanbanColumn({
   };
 
 
-  // Combine all refs for the main container (drag + drop)
-  const combinedRef = (el: HTMLDivElement | null) => {
-    drop(el);
+  // Separate refs for column drag/drop and site drop
+  const columnRef = (el: HTMLDivElement | null) => {
     dropColumn(el);
-    dragColumn(el); // Apply drag to entire column
+    dragColumn(el);
+  };
+
+  const contentRef = (el: HTMLDivElement | null) => {
+    drop(el);
   };
 
   // If this column is being dragged, show placeholder
@@ -230,7 +233,7 @@ export function KanbanColumn({
 
   return (
     <Box 
-      ref={combinedRef}
+      ref={columnRef}
       data-column-id={column.id}
       flexShrink={0}
       w="384px"
@@ -341,7 +344,7 @@ export function KanbanColumn({
 
       {/* Column Content */}
       {!collapsed && (
-        <Box gap="6px" maxH="calc(100vh - 200px)" overflowY="auto" p={4} borderBottomRadius="16px">
+        <Box ref={contentRef} gap="6px" maxH="calc(100vh - 200px)" overflowY="auto" p={4} borderBottomRadius="16px">
           {column.sites.map((site, index) => (
             <Box key={site.id} mb="6px">
               <PropertyCard
