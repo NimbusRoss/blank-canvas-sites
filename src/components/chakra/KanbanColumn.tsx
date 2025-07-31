@@ -147,6 +147,8 @@ export function KanbanColumn({
     draggedColumnId !== column.id && 
     isOverColumn;
 
+  console.log(`Column ${column.id}: draggedColumnId=${draggedColumnId}, isOverColumn=${isOverColumn}, shouldShift=${shouldShift}`);
+
   const handleToggleCollapse = () => {
     // Only allow local toggle if not globally collapsed
     if (!isCollapsed) {
