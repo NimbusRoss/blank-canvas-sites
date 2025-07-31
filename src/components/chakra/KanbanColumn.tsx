@@ -142,12 +142,15 @@ export function KanbanColumn({
     }),
   });
 
-  // Determine if this column should shift to fill the placeholder space
+  // Determine if this column should shift when hovered over during drag
   const shouldShift = draggedColumnId && 
     draggedColumnId !== column.id && 
     isOverColumn;
-
-  console.log(`Column ${column.id}: draggedColumnId=${draggedColumnId}, isOverColumn=${isOverColumn}, shouldShift=${shouldShift}`);
+    
+  // Debug logging
+  if (draggedColumnId && draggedColumnId !== column.id) {
+    console.log(`Column ${column.id}: draggedColumnId=${draggedColumnId}, isOverColumn=${isOverColumn}, shouldShift=${shouldShift}`);
+  }
 
   const handleToggleCollapse = () => {
     // Only allow local toggle if not globally collapsed
