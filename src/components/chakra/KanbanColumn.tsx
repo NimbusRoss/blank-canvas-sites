@@ -104,6 +104,9 @@ export function KanbanColumn({
       id: column.id, 
       column: column 
     }),
+    options: {
+      dropEffect: 'move',
+    },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
@@ -167,6 +170,34 @@ export function KanbanColumn({
     dragColumn(el); // Apply drag to entire column
   };
 
+  // If this column is being dragged, show placeholder
+  if (isDragging) {
+    return (
+      <Box 
+        ref={dropColumn}
+        data-column-id={column.id}
+        flexShrink={0}
+        w="384px"
+        h={collapsed ? "64px" : "auto"}
+        borderRadius="16px"
+        border="2px dashed"
+        borderColor="gray.300"
+        bg="gray.50"
+        opacity={0.5}
+        transition="all 0.2s ease-out"
+        transform={isOverColumn ? "translateX(20px)" : "none"}
+        marginRight={isOverColumn ? "20px" : "0"}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        color="gray.500"
+        fontSize="sm"
+      >
+        Drop column here
+      </Box>
+    );
+  }
+
   return (
     <Box 
       ref={combinedRef}
@@ -179,11 +210,9 @@ export function KanbanColumn({
       h={collapsed ? "64px" : "auto"}
       borderRadius="16px"
       transition="all 0.2s ease-out"
-      transform={isDragging ? "scale(1.05)" : isOverColumn ? "translateX(20px)" : "none"}
+      transform={isOverColumn ? "translateX(20px)" : "none"}
       marginRight={isOverColumn ? "20px" : "0"}
-      opacity={isDragging ? 0.8 : 1}
-      boxShadow={isDragging ? "0 10px 30px rgba(0, 0, 0, 0.3)" : isOverColumn ? "0 0 0 2px rgba(59, 130, 246, 0.5)" : "md"}
-      zIndex={isDragging ? 1000 : "auto"}
+      boxShadow={isOverColumn ? "0 0 0 2px rgba(59, 130, 246, 0.5)" : "md"}
       sx={isOver && canDrop ? {
         backgroundColor: 'blue.50',
         borderColor: 'blue.500',
