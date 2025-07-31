@@ -137,8 +137,14 @@ export function KanbanColumn({
         onMoveColumn(item.id, column.id);
       }
     },
+    hover: (item: ColumnDragItem, monitor) => {
+      // This ensures isOverColumn updates during hover
+      if (!monitor.isOver({ shallow: true })) {
+        return;
+      }
+    },
     collect: (monitor) => ({
-      isOverColumn: monitor.isOver({ shallow: true }),
+      isOverColumn: monitor.isOver({ shallow: false }), // Changed from shallow: true
     }),
   });
 
