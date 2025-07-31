@@ -160,15 +160,11 @@ export function KanbanColumn({
   };
 
 
-  // Combine drop refs for the main container
+  // Combine all refs for the main container (drag + drop)
   const combinedRef = (el: HTMLDivElement | null) => {
     drop(el);
     dropColumn(el);
-  };
-
-  // Separate ref for dragging (header only)
-  const dragRef = (el: HTMLDivElement | null) => {
-    dragColumn(el);
+    dragColumn(el); // Apply drag to entire column
   };
 
   return (
@@ -199,9 +195,8 @@ export function KanbanColumn({
         borderWidth: '2px'
       } : {}}
     >
-      {/* Column Header - Draggable */}
+      {/* Column Header */}
       <Box 
-        ref={dragRef}
         h="64px" 
         borderBottom="1px solid" 
         borderColor="gray.200" 
