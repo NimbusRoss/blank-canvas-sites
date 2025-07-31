@@ -57,7 +57,7 @@ interface Site {
   comments: number;
   documents: number;
   isExpanded: boolean;
-  isSelected?: boolean;
+  isSelected: boolean;
 }
 
 interface SiteInfoDrawerProps {

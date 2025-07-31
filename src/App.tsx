@@ -6,12 +6,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import PropertySitesKanban from "./pages/PropertySitesKanban";
 import NotFound from "./pages/NotFound";
+import theme from "./theme/chakraTheme";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ChakraProvider>
+    <ChakraProvider theme={theme}>
       <TooltipProvider>
         <Toaster />
         <Sonner />

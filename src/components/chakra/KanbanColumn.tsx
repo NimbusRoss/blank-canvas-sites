@@ -14,7 +14,7 @@ interface Site {
   comments: number;
   documents: number;
   isExpanded: boolean;
-  isSelected?: boolean;
+  isSelected: boolean;
 }
 
 interface Column {
@@ -24,7 +24,7 @@ interface Column {
   borderColor: string;
   count: number;
   sites: Site[];
-  isSelected?: boolean;
+  isSelected: boolean;
 }
 
 interface KanbanColumnProps {
