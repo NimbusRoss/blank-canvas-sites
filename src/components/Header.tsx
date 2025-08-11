@@ -222,7 +222,7 @@ export function Header({
 
           {/* Letter Generation button */}
           <Button 
-            className="bg-primary text-primary-foreground hover:bg-primary/90"
+            className="bg-red-600 text-white hover:bg-red-700"
           >
             Letter Generation
           </Button>

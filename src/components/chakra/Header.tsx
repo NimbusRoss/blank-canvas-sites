@@ -258,9 +258,9 @@ export function Header({
 
           {/* Letter Generation button */}
           <Button 
-            bg="blue.600"
+            bg="red.600"
             color="white"
-            _hover={{ bg: "blue.700" }}
+            _hover={{ bg: "red.700" }}
           >
             Letter Generation
           </Button>
